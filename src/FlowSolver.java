@@ -1,8 +1,8 @@
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Class to calculate the maximum flow in a graph.
  * Created by oskarek on 2016-11-02.
  */
 public class FlowSolver {
@@ -24,14 +24,16 @@ public class FlowSolver {
 
     GraphType edmonds_Karp(GraphType capacityGraph) {
         int vCount = capacityGraph.vertexCount();
-        GraphType flowGraph; // should be set to a graph with vCount number of vertices
-        GraphType residualGraph; // so should this
+        GraphType flowGraph = new Graph(vCount);
+        GraphType residualGraph = new Graph(vCount);
         for (GraphEdgeType edge : capacityGraph.edges()) {
-            // Add this edge and its reverse to the residualGraph
-            // Add this edge and its reverse but with 0 capacity to the flowGraph
+            residualGraph.addEdge(edge.getFrom(), edge.getTo(), edge.getValue());
+            residualGraph.addEdge(edge.getTo(), edge.getFrom(), edge.reversed().getValue());
+
+            residualGraph.addEdge(edge.getFrom(), edge.getTo(), 0);
         }
 
-        Optional<LinkedList<GraphEdgeType>> path = Optional.empty();
+        Optional<LinkedList<GraphEdgeType>> path;
         // While loop ends when no path can be found from s to t in the residual graph.
         while ((path = BFS_path(residualGraph,capacityGraph.getS(), capacityGraph.getT())).isPresent()) {
             List<GraphEdgeType> p = path.get();
@@ -95,7 +97,9 @@ public class FlowSolver {
         int s = io.getInt();
         int t = io.getInt();
         int e = io.getInt();
-        GraphType graph;
+        GraphType graph = new Graph(v);
+        graph.setS(s);
+        graph.setT(t);
         for(int i = 0; i<e; i++){
             int a = io.getInt();
             int b = io.getInt();
@@ -111,13 +115,13 @@ public class FlowSolver {
         int s = graph.getS(), t = graph.getT();
         int totFlow = 0;
         for (GraphEdgeType sEdge : graph.edgesForVertex(s))
-            totFlow += sEdge.value();
+            totFlow += sEdge.getValue();
         io.write(s + " " + t + " " + totFlow);
 
         int positiveEdgesCount = 0;
         LinkedList<GraphEdgeType> positiveEdges = new LinkedList<>();
         for (GraphEdgeType edge : graph.edges()) {
-            if (edge.value() > 0) {
+            if (edge.getValue() > 0) {
                 positiveEdgesCount += 1;
                 positiveEdges.add(edge);
             }
@@ -126,7 +130,7 @@ public class FlowSolver {
         io.println(positiveEdgesCount);
 
         for (GraphEdgeType e : positiveEdges)
-            io.println(e.getFrom() + " " + e.getTo() + " " + e.value());
+            io.println(e.getFrom() + " " + e.getTo() + " " + e.getValue());
     }
 
     private void writeFlowGraph_ROBERT_HATAR(GraphType graph) {
@@ -134,16 +138,16 @@ public class FlowSolver {
         io.println(vertexCount);
         int s = graph.getS(), t = graph.getT();
         int totFlow = graph.edgesForVertex(s).stream()
-                .mapToInt(GraphEdgeType::value)
+                .mapToInt(GraphEdgeType::getValue)
                 .sum();
         io.write(s + " " + t + " " + totFlow);
 
         Stream<GraphEdgeType> positiveFlowEdges = graph.edges().stream()
-                .filter(e -> e.value() > 0);
+                .filter(e -> e.getValue() > 0);
 
         io.println(positiveFlowEdges.count());
 
         positiveFlowEdges
-                .forEach(e -> io.println(e.getFrom() + " " + e.getTo() + " " + e.value()));
+                .forEach(e -> io.println(e.getFrom() + " " + e.getTo() + " " + e.getValue()));
     }
 }

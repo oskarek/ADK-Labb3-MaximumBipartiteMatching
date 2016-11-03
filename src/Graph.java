@@ -3,17 +3,16 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 /**
+ * A graph implementation.
  * Created by RobertLorentz on 30/10/16.
  */
 public class Graph implements GraphType {
     private ArrayList<Vertex> vertexes;
-    private int s, t;
+    private int s = 0, t = 0;
     private int edgeNum;
 
     public Graph(int v){
         vertexes = new ArrayList<>(v);
-        s = v+1;
-        t = s+1;
         loadVertexes(v);
     }
 
@@ -22,6 +21,8 @@ public class Graph implements GraphType {
     public int getEdgeNum() { return edgeNum; }
     public int getS() { return s; }
     public int getT() { return t; }
+    public void setS(int value) { s = value; }
+    public void setT(int value) { t = value; }
 
     public int vertexCount() {
         return vertexes.size();

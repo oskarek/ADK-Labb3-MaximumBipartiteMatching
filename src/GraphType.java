@@ -44,6 +44,9 @@ public interface GraphType {
      */
     int getT();
 
+    void setS(int value);
+    void setT(int value);
+
     /**
      * @return The number of vertices in the graph.
      */
