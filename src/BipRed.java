@@ -46,8 +46,8 @@ public class BipRed {
         io.println(e);
         ArrayList<Graph.Vertex> vertexes = graph.getVertexes();
         for(Graph.Vertex vertex : vertexes){
-            for(Graph.Edge edge : vertex.getEdges())
-                io.println(vertex.getRepresentation() + " " + edge.getEdgeTo() + " " + edge.getCapacity());
+            for(GraphEdgeType edge : vertex.getEdges())
+                io.println(vertex.getValue() + " " + edge.getTo() + " " + edge.getValue());
         }
         io.flush();
     }

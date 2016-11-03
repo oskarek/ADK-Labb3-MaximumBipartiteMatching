@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 /**
@@ -31,7 +32,7 @@ public interface GraphType {
      * @param to The target vertex for the edge.
      * @return The edge if it exists, otherwise Optional.empty().
      */
-    Optional<GraphEdgeType> edge(int from, int to);
+    Optional<GraphEdgeType> getEdge(int from, int to);
 
     /**
      * @return The s vertex.

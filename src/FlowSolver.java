@@ -11,42 +11,41 @@ public class FlowSolver {
     FlowSolver() {
         GraphType graph = readCapacityGraph();
         GraphType maxGraph = edmonds_Karp(graph);
-
     }
 
-    GraphType edmonds_Karp(GraphType graph) {
-        int vCount = graph.vertexCount();
+    GraphType edmonds_Karp(GraphType capacityGraph) {
+        int vCount = capacityGraph.vertexCount();
         GraphType flowGraph; // should be set to a graph with vCount number of vertices
         GraphType residualGraph; // so should this
-        for (GraphEdgeType edge : graph.edges()) {
+        for (GraphEdgeType edge : capacityGraph.edges()) {
             // Add this edge and its reverse to the residualGraph
             // Add this edge and its reverse but with 0 capacity to the flowGraph
         }
 
         Optional<LinkedList<GraphEdgeType>> path = Optional.empty();
         // While loop ends when no path can be found from s to t in the residual graph.
-        while ((path = BFS_path(residualGraph,graph.getS(), graph.getT())).isPresent()) {
+        while ((path = BFS_path(residualGraph,capacityGraph.getS(), capacityGraph.getT())).isPresent()) {
             List<GraphEdgeType> p = path.get();
             // r is the minimum capacity of the edges in p
             int r = p.stream()
-                    .map(GraphEdgeType::value)
+                    .map(GraphEdgeType::getValue)
                     .min(Integer::compareTo)
                     .get();
 
             for (GraphEdgeType edge : p) {
                 int u = edge.getFrom(); int v = edge.getTo();
-                GraphEdgeType fuv = flowGraph.edge(u,v).get();
-                int fuvVal = fuv.value();
+                GraphEdgeType fuv = flowGraph.getEdge(u,v).get();
+                int fuvVal = fuv.getValue();
                 fuv.setValue(fuvVal + r);
                 fuv.reversed().setValue(-fuvVal);
 
-                GraphEdgeType cuv = graph.edge(u,v).get();
-                int cuvVal = cuv.value();
-                GraphEdgeType cfuv = residualGraph.edge(u,v).get();
+                GraphEdgeType cuv = capacityGraph.getEdge(u,v).get();
+                int cuvVal = cuv.getValue();
+                GraphEdgeType cfuv = residualGraph.getEdge(u,v).get();
                 cfuv.setValue(cuvVal-fuvVal);
-                cfuv.reversed().setValue(cuv.reversed().value() - fuv.reversed().value());
-                if (cfuv.value() == 0) residualGraph.removeEdge(cfuv.getFrom(),cfuv.getTo());
-                if (cfuv.reversed().value() == 0) residualGraph.removeEdge(cfuv.getTo(),cfuv.getFrom());
+                cfuv.reversed().setValue(cuv.reversed().getValue() - fuv.reversed().getValue());
+                if (cfuv.getValue() == 0) residualGraph.removeEdge(cfuv.getFrom(),cfuv.getTo());
+                if (cfuv.reversed().getValue() == 0) residualGraph.removeEdge(cfuv.getTo(),cfuv.getFrom());
             }
         }
         return flowGraph;

@@ -18,7 +18,7 @@ interface GraphEdgeType {
      * The value of the edge.
      * @return The value of the edge.
      */
-    int value();
+    int getValue();
 
     /**
      * Set the value of the edge.
