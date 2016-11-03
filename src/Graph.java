@@ -36,7 +36,8 @@ public class Graph implements GraphType {
     public LinkedList<Integer> neighboursForVertex(int vertex) {
         LinkedList<Integer> neighbours = new LinkedList<>();
         for (GraphEdgeType edge : edgesForVertex(vertex)) {
-            neighbours.add(edge.getTo());
+            if (edge.getValue() > 0)
+                neighbours.add(edge.getTo());
         }
         return neighbours;
     }

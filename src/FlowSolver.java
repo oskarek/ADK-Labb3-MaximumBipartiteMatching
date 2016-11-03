@@ -75,8 +75,6 @@ public class FlowSolver {
                 GraphEdgeType cfuv = residualGraph.getEdge(u,v).get();
                 cfuv.setValue(cuvVal-fuv.getValue());
                 cfuv.reversed().setValue(cuv.reversed().getValue() - fuv.reversed().getValue());
-                if (cfuv.getValue() == 0) residualGraph.removeEdge(cfuv.getFrom(),cfuv.getTo());
-                if (cfuv.reversed().getValue() == 0) residualGraph.removeEdge(cfuv.getTo(),cfuv.getFrom());
             }
         }
         return flowGraph;
