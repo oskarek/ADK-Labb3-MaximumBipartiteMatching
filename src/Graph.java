@@ -1,5 +1,6 @@
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Optional;
 
 /**
@@ -28,8 +29,16 @@ public class Graph implements GraphType {
         return vertexes.size();
     }
 
-    public ArrayList<GraphEdgeType> edgesForVertex(int vertex) {
+    public LinkedList<GraphEdgeType> edgesForVertex(int vertex) {
         return getVertex(vertex).getEdges();
+    }
+
+    public LinkedList<Integer> neighboursForVertex(int vertex) {
+        LinkedList<Integer> neighbours = new LinkedList<>();
+        for (GraphEdgeType edge : edgesForVertex(vertex)) {
+            neighbours.add(edge.getTo());
+        }
+        return neighbours;
     }
 
     void loadVertexes(int v) {
@@ -46,8 +55,8 @@ public class Graph implements GraphType {
         return vertexes.get(value-1);
     }
 
-    public ArrayList<GraphEdgeType> edges() {
-        ArrayList<GraphEdgeType> edges = new ArrayList<>();
+    public LinkedList<GraphEdgeType> edges() {
+        LinkedList<GraphEdgeType> edges = new LinkedList<>();
         for(Vertex v : vertexes){
             for(GraphEdgeType edge : v.getEdges())
                 edges.add(edge);
@@ -58,7 +67,7 @@ public class Graph implements GraphType {
     public void addEdge(int from, int edgeTo, int capacity){
         Vertex v = getVertex(from);
         Vertex r = getVertex(edgeTo);
-        ArrayList<GraphEdgeType> edges = r.getEdges();
+        LinkedList<GraphEdgeType> edges = r.getEdges();
         Boolean found = false;
         for(GraphEdgeType edge : edges){
             if(edge.getTo() == from) {
@@ -86,9 +95,9 @@ public class Graph implements GraphType {
 
     public class Vertex {
         private int value;
-        private ArrayList<GraphEdgeType> edges;
+        private LinkedList<GraphEdgeType> edges;
         public int getValue() { return value; }
-        public ArrayList<GraphEdgeType> getEdges() { return edges; }
+        public LinkedList<GraphEdgeType> getEdges() { return edges; }
 
         public Optional<GraphEdgeType> getEdge(int to) {
             for(GraphEdgeType edge : edges){
@@ -100,7 +109,7 @@ public class Graph implements GraphType {
 
         public Vertex(int value) {
             this.value = value;
-            edges = new ArrayList<>();
+            edges = new LinkedList<>();
         }
 
         public Edge addEdge(int edgeFrom, int edgeTo, int capacity){

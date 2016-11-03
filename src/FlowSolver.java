@@ -24,6 +24,24 @@ public class FlowSolver {
         io.close();
     }
 
+    private GraphType readCapacityGraph(){
+        int v = io.getInt();
+        int s = io.getInt();
+        int t = io.getInt();
+        int e = io.getInt();
+        GraphType graph = new Graph(v);
+        graph.setS(s);
+        graph.setT(t);
+
+        for(int i = 0; i<e; i++){
+            int a = io.getInt();
+            int b = io.getInt();
+            int f = io.getInt();
+            graph.addEdge(a,b,f);
+        }
+        return graph;
+    }
+
     GraphType edmonds_Karp(GraphType capacityGraph) {
         int vCount = capacityGraph.vertexCount();
         GraphType flowGraph = new Graph(vCount);
@@ -44,10 +62,7 @@ public class FlowSolver {
         while ((path = BFS_path(residualGraph,capacityGraph.getS(), capacityGraph.getT())).isPresent()) {
             List<GraphEdgeType> p = path.get();
             // r is the minimum capacity of the edges in p
-            int r = p.stream()
-                    .map(GraphEdgeType::getValue)
-                    .min(Integer::compareTo)
-                    .get();
+            int r = p.stream().map(GraphEdgeType::getValue).min(Integer::compareTo).get();
 
             for (GraphEdgeType edge : p) {
                 int u = edge.getFrom(); int v = edge.getTo();
@@ -76,52 +91,33 @@ public class FlowSolver {
      *         or Optinal.empty() if no such path exists.
      */
     private Optional<LinkedList<GraphEdgeType>> BFS_path(GraphType graph, int from, int to) {
-        Queue<LinkedList<GraphEdgeType>> queue = new LinkedList<>();
-        for (GraphEdgeType startEdge : graph.edgesForVertex(from)) {
-            LinkedList<GraphEdgeType> l = new LinkedList<>();
-            l.add(startEdge);
-            queue.add(l);
-        }
+        int[] parents = new int[graph.vertexCount()+1];
+        parents[from] = -1;
 
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(from);
         while (!queue.isEmpty()) {
-            LinkedList<GraphEdgeType> path = queue.poll();
-            if (path.isEmpty()) continue;
+            int u = queue.poll();
 
-            GraphEdgeType edge = path.getLast();
-            int endVertex = edge.getTo();
-            if (endVertex == to) return Optional.of(path);
+            if (u == to) {
+                LinkedList<GraphEdgeType> path = new LinkedList<>();
+                while (u != from) {
+                    int p = parents[u];
+                    GraphEdgeType edge = graph.getEdge(p,u).get();
+                    path.addFirst(edge);
+                    u = p;
+                }
+                return Optional.of(path);
+            }
 
-            for (GraphEdgeType newEdge : graph.edgesForVertex(endVertex)) {
-                LinkedList<GraphEdgeType> newPath = new LinkedList<>(path);
-                newPath.add(newEdge);
-                queue.add(newPath);
+            for (int v : graph.neighboursForVertex(u)) {
+                if (parents[v] == 0) {
+                    parents[v] = u;
+                    queue.add(v);
+                }
             }
         }
         return Optional.empty();
-    }
-
-    private GraphType readCapacityGraph(){
-        // io = new Kattio(System.in, System.out);
-        int v = 4;// io.getInt();
-        int s = 1;// io.getInt();
-        int t = 4;// io.getInt();
-        int e = 5; // io.getInt();
-        GraphType graph = new Graph(v);
-        graph.setS(s);
-        graph.setT(t);
-
-        graph.addEdge(1,2,1);
-        graph.addEdge(1,3,2);
-        graph.addEdge(2,4,2);
-        graph.addEdge(3,2,2);
-        graph.addEdge(3,4,1);
-//        for(int i = 0; i<e; i++){
-//            int a = io.getInt();
-//            int b = io.getInt();
-//            int f = io.getInt();
-//            graph.addEdge(a,b,f);
-//        }
-        return graph;
     }
 
     private void writeFlowGraph(GraphType graph) {
@@ -146,25 +142,5 @@ public class FlowSolver {
 
         for (GraphEdgeType e : positiveEdges)
             io.println(e.getFrom() + " " + e.getTo() + " " + e.getValue());
-    }
-
-    private void writeFlowGraph_ROBERT_HATAR(GraphType graph) {
-        int vertexCount = graph.vertexCount();
-        io.println(vertexCount);
-        int s = graph.getS(), t = graph.getT();
-        int totFlow = graph.edgesForVertex(s).stream()
-                .mapToInt(GraphEdgeType::getValue)
-                .sum();
-        io.write(s + " " + t + " " + totFlow);
-
-        Stream<GraphEdgeType> positiveFlowEdges = graph.edges().stream()
-                .filter(e -> e.getValue() > 0);
-
-        io.println(positiveFlowEdges.count());
-
-        positiveFlowEdges
-                .forEach(e -> io.println(e.getFrom() + " " + e.getTo() + " " + e.getValue()));
-
-        io.flush();
     }
 }

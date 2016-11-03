@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 /**
@@ -58,4 +57,11 @@ public interface GraphType {
      * @return The edges from the given vertex.
      */
     List<GraphEdgeType> edgesForVertex(int vertex);
+
+    /**
+     * Get the neigbours to the given vertex.
+     * @param vertex The vertex who's neighbours should be returned.
+     * @return All the neighbours.
+     */
+    List<Integer> neighboursForVertex(int vertex);
 }
