@@ -15,13 +15,13 @@ public class FlowSolver {
     FlowSolver() {
         io = new Kattio(System.in, System.out);
 
-        io.println(123456);
-
         GraphType graph = readCapacityGraph();
 
         GraphType maxGraph = edmonds_Karp(graph);
 
         writeFlowGraph(maxGraph);
+
+        io.close();
     }
 
     GraphType edmonds_Karp(GraphType capacityGraph) {
@@ -52,14 +52,13 @@ public class FlowSolver {
             for (GraphEdgeType edge : p) {
                 int u = edge.getFrom(); int v = edge.getTo();
                 GraphEdgeType fuv = flowGraph.getEdge(u,v).get();
-                int fuvVal = fuv.getValue();
-                fuv.setValue(fuvVal + r);
-                fuv.reversed().setValue(-fuvVal);
+                fuv.setValue(fuv.getValue() + r);
+                fuv.reversed().setValue(-fuv.getValue());
 
                 GraphEdgeType cuv = capacityGraph.getEdge(u,v).get();
                 int cuvVal = cuv.getValue();
                 GraphEdgeType cfuv = residualGraph.getEdge(u,v).get();
-                cfuv.setValue(cuvVal-fuvVal);
+                cfuv.setValue(cuvVal-fuv.getValue());
                 cfuv.reversed().setValue(cuv.reversed().getValue() - fuv.reversed().getValue());
                 if (cfuv.getValue() == 0) residualGraph.removeEdge(cfuv.getFrom(),cfuv.getTo());
                 if (cfuv.reversed().getValue() == 0) residualGraph.removeEdge(cfuv.getTo(),cfuv.getFrom());
@@ -78,9 +77,11 @@ public class FlowSolver {
      */
     private Optional<LinkedList<GraphEdgeType>> BFS_path(GraphType graph, int from, int to) {
         Queue<LinkedList<GraphEdgeType>> queue = new LinkedList<>();
-        LinkedList<GraphEdgeType> l = new LinkedList<>();
-        l.addAll(graph.edgesForVertex(from));
-        queue.add(l);
+        for (GraphEdgeType startEdge : graph.edgesForVertex(from)) {
+            LinkedList<GraphEdgeType> l = new LinkedList<>();
+            l.add(startEdge);
+            queue.add(l);
+        }
 
         while (!queue.isEmpty()) {
             LinkedList<GraphEdgeType> path = queue.poll();
@@ -100,7 +101,7 @@ public class FlowSolver {
     }
 
     private GraphType readCapacityGraph(){
-        Kattio io = new Kattio(System.in, System.out);
+        // io = new Kattio(System.in, System.out);
         int v = 4;// io.getInt();
         int s = 1;// io.getInt();
         int t = 4;// io.getInt();
@@ -130,7 +131,7 @@ public class FlowSolver {
         int totFlow = 0;
         for (GraphEdgeType sEdge : graph.edgesForVertex(s))
             totFlow += sEdge.getValue();
-        io.write(s + " " + t + " " + totFlow);
+        io.println(s + " " + t + " " + totFlow);
 
         int positiveEdgesCount = 0;
         LinkedList<GraphEdgeType> positiveEdges = new LinkedList<>();
@@ -163,5 +164,7 @@ public class FlowSolver {
 
         positiveFlowEdges
                 .forEach(e -> io.println(e.getFrom() + " " + e.getTo() + " " + e.getValue()));
+
+        io.flush();
     }
 }
