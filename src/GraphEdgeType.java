@@ -31,4 +31,6 @@ interface GraphEdgeType {
      * @return The reversed edge.
      */
     GraphEdgeType reversed();
+
+    void setReversedEdge(GraphEdgeType edge);
 }

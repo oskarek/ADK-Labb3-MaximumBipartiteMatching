@@ -15,6 +15,8 @@ public class FlowSolver {
     FlowSolver() {
         io = new Kattio(System.in, System.out);
 
+        io.println(123456);
+
         GraphType graph = readCapacityGraph();
 
         GraphType maxGraph = edmonds_Karp(graph);
@@ -25,12 +27,16 @@ public class FlowSolver {
     GraphType edmonds_Karp(GraphType capacityGraph) {
         int vCount = capacityGraph.vertexCount();
         GraphType flowGraph = new Graph(vCount);
+        flowGraph.setS(capacityGraph.getS());
+        flowGraph.setT(capacityGraph.getT());
         GraphType residualGraph = new Graph(vCount);
+        residualGraph.setS(capacityGraph.getS());
+        residualGraph.setT(capacityGraph.getT());
         for (GraphEdgeType edge : capacityGraph.edges()) {
             residualGraph.addEdge(edge.getFrom(), edge.getTo(), edge.getValue());
-            residualGraph.addEdge(edge.getTo(), edge.getFrom(), edge.reversed().getValue());
+            //residualGraph.addEdge(edge.getTo(), edge.getFrom(), edge.reversed().getValue());
 
-            residualGraph.addEdge(edge.getFrom(), edge.getTo(), 0);
+            flowGraph.addEdge(edge.getFrom(), edge.getTo(), 0);
         }
 
         Optional<LinkedList<GraphEdgeType>> path;
@@ -78,6 +84,8 @@ public class FlowSolver {
 
         while (!queue.isEmpty()) {
             LinkedList<GraphEdgeType> path = queue.poll();
+            if (path.isEmpty()) continue;
+
             GraphEdgeType edge = path.getLast();
             int endVertex = edge.getTo();
             if (endVertex == to) return Optional.of(path);
@@ -93,19 +101,25 @@ public class FlowSolver {
 
     private GraphType readCapacityGraph(){
         Kattio io = new Kattio(System.in, System.out);
-        int v = io.getInt();
-        int s = io.getInt();
-        int t = io.getInt();
-        int e = io.getInt();
+        int v = 4;// io.getInt();
+        int s = 1;// io.getInt();
+        int t = 4;// io.getInt();
+        int e = 5; // io.getInt();
         GraphType graph = new Graph(v);
         graph.setS(s);
         graph.setT(t);
-        for(int i = 0; i<e; i++){
-            int a = io.getInt();
-            int b = io.getInt();
-            int f = io.getInt();
-            graph.addEdge(a,b,f);
-        }
+
+        graph.addEdge(1,2,1);
+        graph.addEdge(1,3,2);
+        graph.addEdge(2,4,2);
+        graph.addEdge(3,2,2);
+        graph.addEdge(3,4,1);
+//        for(int i = 0; i<e; i++){
+//            int a = io.getInt();
+//            int b = io.getInt();
+//            int f = io.getInt();
+//            graph.addEdge(a,b,f);
+//        }
         return graph;
     }
 

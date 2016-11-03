@@ -43,7 +43,7 @@ public class Graph implements GraphType {
     }
 
     public Vertex getVertex(int value) {
-        return vertexes.get(value+1);
+        return vertexes.get(value-1);
     }
 
     public ArrayList<GraphEdgeType> edges() {
@@ -66,8 +66,13 @@ public class Graph implements GraphType {
                 found = true;
             }
         }
-        if(!found)
-            v.addEdge(from,edgeTo,capacity);
+        if(!found) {
+            GraphEdgeType edge = v.addEdge(from, edgeTo, capacity);
+            GraphEdgeType revEdge = r.addEdge(edgeTo, from, 0);
+            edge.setReversedEdge(revEdge);
+            revEdge.setReversedEdge(edge);
+        }
+
     }
 
     public void removeEdge(int from, int to) {
@@ -76,7 +81,7 @@ public class Graph implements GraphType {
     }
 
     public Optional<GraphEdgeType> getEdge(int from, int to) {
-        return null;
+        return getVertex(from).getEdge(to);
     }
 
     public class Vertex {
@@ -84,6 +89,14 @@ public class Graph implements GraphType {
         private ArrayList<GraphEdgeType> edges;
         public int getValue() { return value; }
         public ArrayList<GraphEdgeType> getEdges() { return edges; }
+
+        public Optional<GraphEdgeType> getEdge(int to) {
+            for(GraphEdgeType edge : edges){
+                if(edge.getTo() == to)
+                    return Optional.of(edge);
+            }
+            return Optional.empty();
+        }
 
         public Vertex(int value) {
             this.value = value;
@@ -93,18 +106,16 @@ public class Graph implements GraphType {
         public Edge addEdge(int edgeFrom, int edgeTo, int capacity){
             edgeNum++;
             Edge e = new Edge(edgeFrom, edgeTo, capacity);
-            Edge re = new Edge(edgeTo, edgeFrom, 0);
-            e.setReversedEdge(re);
-            re.setReversedEdge(e);
-            edges.add(re);
             edges.add(e);
             return e;
         }
 
         public void removeEdge(int to) {
             for(GraphEdgeType edge : edges){
-                if(edge.getTo() == to)
+                if(edge.getTo() == to) {
                     edges.remove(edge);
+                    break;
+                }
             }
         }
     }
@@ -113,7 +124,7 @@ public class Graph implements GraphType {
         private int edgeFrom;
         private int edgeTo;
         private int capacity;
-        private Edge reversedEdge;
+        private GraphEdgeType reversedEdge;
 
         public Edge(int edgeFrom, int edgeTo, int capacity){
             this.edgeFrom = edgeFrom;
@@ -133,7 +144,7 @@ public class Graph implements GraphType {
             return reversedEdge;
         }
 
-        public void setReversedEdge(Edge reversedEdge){
+        public void setReversedEdge(GraphEdgeType reversedEdge){
             this.reversedEdge = reversedEdge;
         }
     }
