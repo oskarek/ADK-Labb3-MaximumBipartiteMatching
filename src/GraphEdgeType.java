@@ -33,4 +33,10 @@ interface GraphEdgeType {
     GraphEdgeType reversed();
 
     void setReversedEdge(GraphEdgeType edge);
+    void setFlowCapacity(int value);
+    void setResidualCapacity(int value);
+    void setCapacity(int value);
+    int getCapacity();
+    int getFlowCapacity();
+    int getResidualCapacity();
 }

@@ -6,78 +6,35 @@ import java.util.stream.Stream;
  * Created by oskarek on 2016-11-02.
  */
 public class FlowSolver {
-    Kattio io;
-
-    public static void main(String[] args) {
-        new FlowSolver();
-    }
-
-    FlowSolver() {
-        io = new Kattio(System.in, System.out);
-
-        GraphType graph = readCapacityGraph();
-
-        GraphType maxGraph = edmonds_Karp(graph);
-
-        writeFlowGraph(maxGraph);
-
-        io.close();
-    }
-
-    private GraphType readCapacityGraph(){
-        int v = io.getInt();
-        int s = io.getInt();
-        int t = io.getInt();
-        int e = io.getInt();
-        GraphType graph = new Graph(v);
-        graph.setS(s);
-        graph.setT(t);
-
-        for(int i = 0; i<e; i++){
-            int a = io.getInt();
-            int b = io.getInt();
-            int f = io.getInt();
-            graph.addEdge(a,b,f);
-        }
-        return graph;
-    }
+    Kattio io = new Kattio(System.in, System.out);
 
     GraphType edmonds_Karp(GraphType capacityGraph) {
+        io.print("Hej");
         int vCount = capacityGraph.vertexCount();
-        GraphType flowGraph = new Graph(vCount);
-        flowGraph.setS(capacityGraph.getS());
-        flowGraph.setT(capacityGraph.getT());
-        GraphType residualGraph = new Graph(vCount);
-        residualGraph.setS(capacityGraph.getS());
-        residualGraph.setT(capacityGraph.getT());
-        for (GraphEdgeType edge : capacityGraph.edges()) {
-            residualGraph.addEdge(edge.getFrom(), edge.getTo(), edge.getValue());
-            //residualGraph.addEdge(edge.getTo(), edge.getFrom(), edge.reversed().getValue());
-
-            flowGraph.addEdge(edge.getFrom(), edge.getTo(), 0);
-        }
 
         Optional<LinkedList<GraphEdgeType>> path;
         // While loop ends when no path can be found from s to t in the residual graph.
-        while ((path = BFS_path(residualGraph,capacityGraph.getS(), capacityGraph.getT())).isPresent()) {
+        while ((path = BFS_path(capacityGraph,capacityGraph.getS(), capacityGraph.getT())).isPresent()) {
             List<GraphEdgeType> p = path.get();
+
             // r is the minimum capacity of the edges in p
             int r = p.stream().map(GraphEdgeType::getValue).min(Integer::compareTo).get();
 
             for (GraphEdgeType edge : p) {
                 int u = edge.getFrom(); int v = edge.getTo();
-                GraphEdgeType fuv = flowGraph.getEdge(u,v).get();
-                fuv.setValue(fuv.getValue() + r);
-                fuv.reversed().setValue(-fuv.getValue());
+                GraphEdgeType fuv = capacityGraph.getEdge(u,v).get();
+                fuv.setFlowCapacity(fuv.getFlowCapacity() + r);
+                fuv.reversed().setFlowCapacity(-fuv.getFlowCapacity());
 
-                GraphEdgeType cuv = capacityGraph.getEdge(u,v).get();
+                GraphEdgeType cuv = capacityGraph.getEdge(u, v).get();
                 int cuvVal = cuv.getValue();
-                GraphEdgeType cfuv = residualGraph.getEdge(u,v).get();
-                cfuv.setValue(cuvVal-fuv.getValue());
-                cfuv.reversed().setValue(cuv.reversed().getValue() - fuv.reversed().getValue());
+                GraphEdgeType cfuv = capacityGraph.getEdge(u, v).get();
+                cfuv.setResidualCapacity(cuvVal-fuv.getFlowCapacity());
+                cfuv.reversed().setResidualCapacity(cuv.reversed().getResidualCapacity()
+                        - fuv.reversed().getFlowCapacity());
             }
         }
-        return flowGraph;
+        return capacityGraph;
     }
 
     /**
@@ -116,29 +73,5 @@ public class FlowSolver {
             }
         }
         return Optional.empty();
-    }
-
-    private void writeFlowGraph(GraphType graph) {
-        int vertexCount = graph.vertexCount();
-        io.println(vertexCount);
-        int s = graph.getS(), t = graph.getT();
-        int totFlow = 0;
-        for (GraphEdgeType sEdge : graph.edgesForVertex(s))
-            totFlow += sEdge.getValue();
-        io.println(s + " " + t + " " + totFlow);
-
-        int positiveEdgesCount = 0;
-        LinkedList<GraphEdgeType> positiveEdges = new LinkedList<>();
-        for (GraphEdgeType edge : graph.edges()) {
-            if (edge.getValue() > 0) {
-                positiveEdgesCount += 1;
-                positiveEdges.add(edge);
-            }
-        }
-
-        io.println(positiveEdgesCount);
-
-        for (GraphEdgeType e : positiveEdges)
-            io.println(e.getFrom() + " " + e.getTo() + " " + e.getValue());
     }
 }

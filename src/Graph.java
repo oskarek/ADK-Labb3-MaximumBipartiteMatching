@@ -17,9 +17,6 @@ public class Graph implements GraphType {
         loadVertexes(v);
     }
 
-    public ArrayList<Vertex> getVertexes() { return vertexes; }
-    public int getNumberOfVertexes() { return vertexes.size(); }
-    public int getEdgeNum() { return edgeNum; }
     public int getS() { return s; }
     public int getT() { return t; }
     public void setS(int value) { s = value; }
@@ -134,12 +131,16 @@ public class Graph implements GraphType {
         private int edgeFrom;
         private int edgeTo;
         private int capacity;
+        private int residualCapacity;
+        private int flowCapacity;
         private GraphEdgeType reversedEdge;
 
         public Edge(int edgeFrom, int edgeTo, int capacity){
             this.edgeFrom = edgeFrom;
             this.edgeTo = edgeTo;
             this.capacity = capacity;
+            residualCapacity = capacity;
+            flowCapacity = 0;
         }
 
         public int getFrom() { return edgeFrom; }
@@ -148,7 +149,15 @@ public class Graph implements GraphType {
 
         public int getValue() { return capacity; }
 
-        public void setValue(int value) { capacity = value; }
+        public int getCapacity() { return capacity; }
+        public int getResidualCapacity() { return residualCapacity; }
+        public int getFlowCapacity(){ return flowCapacity; }
+
+        public void setValue(int value) { capacity = value; residualCapacity = value; }
+
+        public void setCapacity(int value) { capacity = value; }
+        public void setResidualCapacity(int value) { residualCapacity = value; }
+        public void setFlowCapacity(int value) { flowCapacity = value; }
 
         public GraphEdgeType reversed() {
             return reversedEdge;
