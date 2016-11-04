@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Class to calculate the maximum flow in a graph.
@@ -62,7 +61,9 @@ public class FlowSolver {
         while ((path = BFS_path(residualGraph,capacityGraph.getS(), capacityGraph.getT())).isPresent()) {
             List<GraphEdgeType> p = path.get();
             // r is the minimum capacity of the edges in p
-            int r = p.stream().map(GraphEdgeType::getValue).min(Integer::compareTo).get();
+            int r = 0;
+            for (GraphEdgeType e : p)
+                if (e.getValue() < r) r = e.getValue();
 
             for (GraphEdgeType edge : p) {
                 int u = edge.getFrom(); int v = edge.getTo();
@@ -90,6 +91,7 @@ public class FlowSolver {
      */
     private Optional<LinkedList<GraphEdgeType>> BFS_path(GraphType graph, int from, int to) {
         int[] parents = new int[graph.vertexCount()+1];
+        int[] values = new int[graph.vertexCount()+1];
         parents[from] = -1;
 
         Queue<Integer> queue = new LinkedList<>();
@@ -101,16 +103,20 @@ public class FlowSolver {
                 LinkedList<GraphEdgeType> path = new LinkedList<>();
                 while (u != from) {
                     int p = parents[u];
-                    GraphEdgeType edge = graph.getEdge(p,u).get();
+                    GraphEdgeType edge = new Graph.Edge(p,u,values[u]);
                     path.addFirst(edge);
                     u = p;
                 }
                 return Optional.of(path);
             }
 
-            for (int v : graph.neighboursForVertex(u)) {
+            for (GraphEdgeType e : graph.edgesForVertex(u)) {
+                if (e.getValue() <= 0) continue;
+                int v = e.getTo();
+                int val = e.getValue();
                 if (parents[v] == 0) {
                     parents[v] = u;
+                    values[v] = val;
                     queue.add(v);
                 }
             }
